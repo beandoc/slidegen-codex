@@ -153,7 +153,9 @@
                 <div class="glass-panel" style="padding: 2rem;">
                     <div class="panel-title" style="margin-bottom: 1.5rem; font-size: 0.85rem;">Transmission Hub</div>
 
-                    <div style="display: grid; grid-template-columns: 1fr 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 0.8rem; margin-bottom: 1rem;">
+                        <button class="btn-secondary" id="openPreviewBtn"
+                            style="padding: 0.6rem; font-size: 0.75rem;">PREVIEW</button>
                         <button class="btn-secondary" id="downloadHtmlBtn"
                             style="padding: 0.6rem; font-size: 0.75rem;">HTML</button>
                         <button class="btn-secondary" id="downloadPdfBtn"
@@ -301,6 +303,12 @@
             const blob = new Blob([currentHtml], { type: 'text/html' });
             const url = URL.createObjectURL(blob);
             const a = document.createElement('a'); a.href = url; a.download = 'presentation.html'; a.click();
+        };
+        document.getElementById('openPreviewBtn').onclick = () => {
+            const blob = new Blob([currentHtml], { type: 'text/html' });
+            const url = URL.createObjectURL(blob);
+            window.open(url, '_blank', 'noopener,noreferrer');
+            setTimeout(() => URL.revokeObjectURL(url), 10000);
         };
 
         // Canva/Figma placeholders
