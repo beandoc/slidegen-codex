@@ -5,7 +5,7 @@ import { PresentationAST, SlideAST } from '@/store/editor';
  * Maintains the original promise of a single HTML file export that never breaks.
  */
 export function generateProductionHTML(ast: PresentationAST) {
-    const slidesHTML = ast.slides.map((s, i) => buildSlideHTML(s, i, ast.theme)).join('\n');
+    const slidesHTML = ast.slides.map((s, i) => buildSlideHTML(s, i)).join('\n');
 
     const coreCSS = getCoreCSS();
     const themeData = getThemeData(ast);
@@ -40,7 +40,7 @@ export function generateProductionHTML(ast: PresentationAST) {
 </html>`;
 }
 
-function buildSlideHTML(slide: SlideAST, index: number, _themePreset: string) {
+function buildSlideHTML(slide: SlideAST, index: number) {
     let content = '';
     const iconSVG = slide.content.icon ? getIconSVG(slide.content.icon) : '';
     const iconHTML = iconSVG ? `<div class="slide-icon reveal">${iconSVG}</div>` : '';
@@ -79,7 +79,7 @@ function buildSlideHTML(slide: SlideAST, index: number, _themePreset: string) {
                         ${imageHTML ? `<div class="image-side">${imageHTML}</div>` : ''}
                        </div>`;
             break;
-        case 'bleed' as any:
+        case 'bleed':
             const bleedText = slide.content.bleedText || '01';
             content = `<div class="wide-wrap">
                         <div class="bleed-element knockout-text">${escapeHTML(bleedText)}</div>
@@ -87,7 +87,7 @@ function buildSlideHTML(slide: SlideAST, index: number, _themePreset: string) {
                         <p class="reveal subtitle delay-1" style="max-width: 600px; opacity: 0.6;">${escapeHTML(slide.content.subtext)}</p>
                        </div>`;
             break;
-        case 'lens' as any:
+        case 'lens':
             content = `<div class="lens-track">
                         <div class="lens-sticky">
                             <div class="lens-mask" style="background-image:url('${escapeAttrUrl(slide.content.imagePath || '')}')"></div>
@@ -98,7 +98,7 @@ function buildSlideHTML(slide: SlideAST, index: number, _themePreset: string) {
                         </div>
                        </div>`;
             break;
-        case 'metrics' as any:
+        case 'metrics':
             const bars = (slide.content.data || []).map((v: number, i: number) => `
                 <div class="metric-item reveal delay-${i + 1}">
                     <div style="display:flex; justify-content:space-between; margin-bottom:0.5rem;">
@@ -113,7 +113,7 @@ function buildSlideHTML(slide: SlideAST, index: number, _themePreset: string) {
                         <div class="metrics-grid" style="display:grid; grid-template-columns:1fr 1fr; gap:4rem; margin-top:4rem;">${bars}</div>
                        </div>`;
             break;
-        case 'narrative' as any:
+        case 'narrative':
             const lines = (slide.content.lines || []).map((line: string, i: number) => {
                 const words = line.split(' ').map((word: string, wi: number) => `<span class="kinetic-word reveal delay-${(i * 3) + wi}">${escapeHTML(word)}</span>`).join(' ');
                 return `<span class="narrative-line kinetic-text">${words}</span>`;
@@ -125,7 +125,7 @@ function buildSlideHTML(slide: SlideAST, index: number, _themePreset: string) {
                          </div>
                        </div>`;
             break;
-        case 'bento' as any:
+        case 'bento':
         case 'feature-grid':
             const bentoItems = (slide.content.bullets || []).map((b: string | { text: string, icon?: string, size?: string }, i: number) => {
                 const text = typeof b === 'string' ? b : b.text;
