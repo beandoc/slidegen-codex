@@ -210,6 +210,7 @@
         const editHistory = document.getElementById('editHistory');
         const toast = document.getElementById('toast');
         const outlineData = safeJsonParse(sessionStorage.getItem('LAST_OUTLINE')) || { slides: [] };
+        const generationWarning = sessionStorage.getItem('LAST_GENERATION_WARNING') || '';
 
         function updatePreview(html) {
             previewFrame.srcdoc = html;
@@ -231,6 +232,9 @@
         // --- Init ---
         if (!generatedHTML) window.location.href = 'index.html';
         else updatePreview(currentHtml);
+        if (generationWarning) {
+            setTimeout(() => showToast(generationWarning), 450);
+        }
 
         // --- AI Edit ---
         async function performAIEdit(instruction) {

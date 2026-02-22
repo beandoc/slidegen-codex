@@ -104,6 +104,13 @@ async function handleGenerate() {
             : `Base Vibe: ${baseVibe}`;
 
         const outline = await generateOutline(prompt, apiKey, combinedVibe);
+        const generationWarning = outline?.error
+            ? `Fallback mode active: ${outline.error}`
+            : '';
+
+        if (generationWarning) {
+            showError(generationWarning);
+        }
 
         generateBtn.innerText = "⚡ Baking CSS & Motion...";
 
@@ -114,6 +121,7 @@ async function handleGenerate() {
         sessionStorage.setItem('LAST_GENERATED_PRESENTATION', htmlContent);
         sessionStorage.setItem('LAST_OUTLINE', JSON.stringify(outline));
         sessionStorage.setItem('LAST_STYLE', activeStyleId);
+        sessionStorage.setItem('LAST_GENERATION_WARNING', generationWarning);
 
         generateBtn.innerText = "✅ Done! Opening...";
 
@@ -127,6 +135,7 @@ async function handleGenerate() {
     } catch (err) {
         console.error(err);
         showError(err?.message || 'Failed to generate presentation.');
+        sessionStorage.removeItem('LAST_GENERATION_WARNING');
         generateBtn.disabled = false;
         generateBtn.innerText = originalText;
     }

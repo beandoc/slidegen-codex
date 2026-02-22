@@ -11,20 +11,27 @@ export { PRESETS };
 export function generateHTML(outline, presetId) {
     const safeOutline = outline && typeof outline === 'object' ? outline : {};
     const safeSlides = Array.isArray(safeOutline.slides) ? safeOutline.slides : [];
-    const design = safeOutline.design || getTokens(presetId);
+    const baseTokens = getTokens(presetId);
+    const design = {
+        ...baseTokens,
+        ...(safeOutline.design || {}),
+        motion: {
+            ...(baseTokens.motion || {}),
+            ...(safeOutline.design?.motion || {}),
+        }
+    };
 
-    // Auto-generate "Agency Chapter" index
-    const indexItems = safeSlides
+    const indexEntries = safeSlides
         .map((s, i) => ({ slide: s, originalIndex: i }))
         .filter(item => item.slide.type !== 'title' && item.slide.heading)
-        .map((item, ii) => `
-            <li class="reveal" data-d="${ii * 80}">
-                <a href="#slide-${item.originalIndex + 1}" class="index-link">
-                    <span class="index-num">0${ii + 1}</span>
-                    <span class="index-text">${esc(item.slide.heading)}</span>
-                </a>
-            </li>`)
-        .join('');
+        .map((item, ii) => ({
+            id: item.originalIndex + 1,
+            order: ii + 1,
+            heading: item.slide.heading
+        }));
+
+    const mode = resolveMode(design.mode);
+    const indexSection = renderIndexSection(mode, indexEntries, safeSlides.length);
 
     const slides = safeSlides.map((s, i) => renderSlide(s, i, design)).join('');
 
@@ -53,34 +60,20 @@ export function generateHTML(outline, presetId) {
     <script type="module" src="https://unpkg.com/@splinetool/viewer/build/spline-viewer.js"></script>
     <script src="https://cdnjs.cloudflare.com/ajax/libs/animejs/3.2.1/anime.min.js"></script>
 </head>
-<body class="story-mode">
+<body class="story-mode mode-${mode}">
     <div id="p-bar"><div id="p-inner"></div></div>
     <nav id="floating-nav"></nav>
     <div class="mesh-bg"></div>
 
     <main id="presentation">
-        <section class="slide slide--index" id="slide-index">
-            <div class="wide-wrap">
-                <div class="editorial-header reveal">
-                    <span class="editorial-label">STORYBOARD</span>
-                    <span class="editorial-label">V.2026</span>
-                </div>
-                <div class="index-layout">
-                    <div class="index-header">
-                        <h2 class="mixed-weight reveal"><strong>What’s</strong> Inside</h2>
-                        <p class="reveal" data-d="100">Tracking the narrative DNA through ${safeSlides.length} key evolutions.</p>
-                    </div>
-                    <ul class="index-list">${indexItems}</ul>
-                </div>
-            </div>
-        </section>
+        ${indexSection}
 
         ${slides}
 
-        <section class="slide slide--footer">
+        <section class="slide slide--footer footer--${mode}">
             <div class="wide-wrap reveal">
-                <span class="label">CURTAIN CALL</span>
-                <h1 style="font-size: 15vw; opacity: 0.1; line-height: 0.8; margin-bottom: -5vw;">FINIS.</h1>
+                <span class="label">${mode === 'minimal-columns' ? 'END NOTE' : 'CURTAIN CALL'}</span>
+                <h1 style="font-size: ${mode === 'card-mosaic' ? '11vw' : '15vw'}; opacity: 0.1; line-height: 0.8; margin-bottom: -5vw;">${mode === 'split-rail' ? 'OUTRO.' : 'FINIS.'}</h1>
                 <div class="editorial-header" style="margin-top: 5rem;">
                     <span class="editorial-label">${esc(safeOutline.title || 'DESIGN MONSTER')}</span>
                     <span class="editorial-label">© 2026 STUDIO</span>
@@ -141,4 +134,93 @@ function renderSlide(s, idx, design) {
     // High-End Wrapper (Global DNA)
     // Removed .slide-container to allow for fluid Doc Flow
     return html;
+}
+
+function resolveMode(mode) {
+    const allowed = new Set(['editorial-ledger', 'split-rail', 'card-mosaic', 'minimal-columns']);
+    return allowed.has(mode) ? mode : 'editorial-ledger';
+}
+
+function renderIndexSection(mode, entries, slideCount) {
+    if (mode === 'split-rail') {
+        const list = entries.map((entry, i) => `
+            <a href="#slide-${entry.id}" class="rail-link reveal" data-d="${i * 80}">
+                <span class="rail-num">${String(entry.order).padStart(2, '0')}</span>
+                <span class="rail-title">${esc(entry.heading)}</span>
+            </a>
+        `).join('');
+        return `<section class="slide slide--index mode-index-split" id="slide-index">
+            <div class="wide-wrap split-rail-layout">
+                <div class="split-rail-intro reveal">
+                    <span class="label">NARRATIVE MAP</span>
+                    <h2>Flow <strong>Rail</strong></h2>
+                    <p class="subtitle">A cinematic route through ${slideCount} narrative beats.</p>
+                </div>
+                <div class="split-rail-list">${list}</div>
+            </div>
+        </section>`;
+    }
+
+    if (mode === 'card-mosaic') {
+        const cards = entries.map((entry, i) => `
+            <a href="#slide-${entry.id}" class="index-card reveal" data-d="${i * 70}">
+                <span class="index-card-id">${String(entry.order).padStart(2, '0')}</span>
+                <h3>${esc(entry.heading)}</h3>
+            </a>
+        `).join('');
+        return `<section class="slide slide--index mode-index-cards" id="slide-index">
+            <div class="wide-wrap">
+                <div class="editorial-header reveal">
+                    <span class="editorial-label">ATLAS</span>
+                    <span class="editorial-label">MOSAIC</span>
+                </div>
+                <h2 class="mixed-weight reveal"><strong>Scene</strong> Matrix</h2>
+                <div class="index-card-grid">${cards}</div>
+            </div>
+        </section>`;
+    }
+
+    if (mode === 'minimal-columns') {
+        const columns = entries.map((entry, i) => `
+            <li class="minimal-index-item reveal" data-d="${i * 70}">
+                <a href="#slide-${entry.id}">
+                    <span>${String(entry.order).padStart(2, '0')}</span>
+                    <strong>${esc(entry.heading)}</strong>
+                </a>
+            </li>
+        `).join('');
+        return `<section class="slide slide--index mode-index-minimal" id="slide-index">
+            <div class="wide-wrap">
+                <h2 class="reveal">Inside This Story</h2>
+                <p class="subtitle reveal" data-d="60">A refined flow of ${slideCount} sections.</p>
+                <ul class="minimal-index-grid">${columns}</ul>
+            </div>
+        </section>`;
+    }
+
+    const indexItems = entries
+        .map((entry, i) => `
+            <li class="reveal" data-d="${i * 80}">
+                <a href="#slide-${entry.id}" class="index-link">
+                    <span class="index-num">${String(entry.order).padStart(2, '0')}</span>
+                    <span class="index-text">${esc(entry.heading)}</span>
+                </a>
+            </li>`)
+        .join('');
+
+    return `<section class="slide slide--index" id="slide-index">
+        <div class="wide-wrap">
+            <div class="editorial-header reveal">
+                <span class="editorial-label">STORYBOARD</span>
+                <span class="editorial-label">V.2026</span>
+            </div>
+            <div class="index-layout">
+                <div class="index-header">
+                    <h2 class="mixed-weight reveal"><strong>What’s</strong> Inside</h2>
+                    <p class="reveal" data-d="100">Tracking the narrative DNA through ${slideCount} key evolutions.</p>
+                </div>
+                <ul class="index-list">${indexItems}</ul>
+            </div>
+        </div>
+    </section>`;
 }
