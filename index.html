@@ -1,0 +1,94 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Design Monster — AI Cinematic Presentations</title>
+    <link rel="stylesheet" href="styles/premium.css">
+    <script type="module" src="scripts/main.js" defer></script>
+</head>
+
+<body>
+    <div class="mesh-bg"></div>
+
+    <div class="container">
+        <header>
+            <div class="logo">
+                <svg width="32" height="32" viewBox="0 0 24 24" fill="none" xmlns="http://www.w3.org/2000/svg">
+                    <rect x="2" y="4" width="20" height="16" rx="3" stroke="currentColor" stroke-width="2.5" />
+                    <circle cx="12" cy="12" r="3" fill="currentColor" />
+                </svg>
+                THE <span>DESIGN MONSTER</span>
+            </div>
+            <button class="btn-secondary" id="openSettingsBtn">⚙️ Studio Key</button>
+        </header>
+
+        <section class="hero">
+            <h1>Kill the Boring Slide.<br>Unleash the <span>Narrative.</span></h1>
+            <p>The world’s first co-evolutionary AI design engine. Cinematic scrolling, 3D dimension art, and custom
+                design tokens generated on the fly.</p>
+        </section>
+
+        <div class="main-grid">
+            <!-- INPUT WING -->
+            <div class="glass-panel">
+                <div class="panel-title">🧠 Neural Input</div>
+                <textarea id="promptInput" style="height: 250px;"
+                    placeholder="Enter your narrative or topic...&#10;&#10;E.g., 'Post-human architecture in 2050. Focus on bio-luminescence and glass structures.'"></textarea>
+
+                <div style="height: 2rem;"></div>
+
+                <div class="panel-title">☄️ Visual Aura</div>
+                <textarea id="vibeInput" style="height: 120px;"
+                    placeholder="Describe the aesthetic aura... &#10;E.g., 'Cyber-noir, neon violet glows, heavy film grain, brutalist fonts.'"></textarea>
+            </div>
+
+            <!-- CONTROL WING -->
+            <div class="glass-panel">
+                <div class="panel-title">☄️ Studio Visual Auras</div>
+                <div class="style-grid" id="styleGrid">
+                    <!-- Loaded dynamically via scripts/main.js -->
+                </div>
+
+                <div style="margin-top: 4rem;">
+                    <div id="errorBox"
+                        style="display: none; color: #ff5555; background: rgba(255, 85, 85, 0.1); padding: 1rem; border-radius: 12px; margin-bottom: 2rem; font-size: 0.9rem;">
+                    </div>
+
+                    <button class="btn-premium" id="generateBtn" style="width: 100%;">
+                        <span>Unleash Design Monster</span>
+                        <svg width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor"
+                            stroke-width="3" stroke-linecap="round" stroke-linejoin="round">
+                            <polyline points="13 2 3 14 12 14 11 22 21 10 12 10 13 2"></polyline>
+                        </svg>
+                    </button>
+
+                    <p
+                        style="font-size: 0.75rem; color: var(--text-muted); margin-top: 2rem; text-align: center; opacity: 0.6; letter-spacing: 0.05em;">
+                        AI ARCHITECT IS ONLINE | READY TO ASSEMBLE DNA
+                    </p>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- STUDIO KEY MODAL -->
+    <div class="modal-wrap" id="settingsModal">
+        <div class="glass-panel api-modal">
+            <div class="panel-title">Studio Authorization</div>
+            <p style="margin-bottom: 2rem; color: var(--text-muted); font-size: 0.95rem;">
+                Please provide your Gemini Studio Key to authorize the Neural Engine.
+            </p>
+            <input type="password" id="apiKeyInput"
+                style="width:100%; padding:1.2rem; background:var(--bg-input); border:1px solid var(--border); border-radius:12px; color:#fff; font-family:monospace; margin-bottom:2.5rem;"
+                placeholder="STUDIO_KEY_..." />
+            <div style="display: flex; justify-content: flex-end; gap: 1rem;">
+                <button class="btn-secondary" id="cancelSettingsBtn">Discard</button>
+                <button class="btn-premium" id="saveSettingsBtn" style="padding: 0.8rem 2rem;">Authorize</button>
+            </div>
+        </div>
+    </div>
+</body>
+
+</html>

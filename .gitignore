@@ -1,0 +1,13 @@
+.DS_Store
+*.pptx
+*.ppt
+node_modules/
+.env
+.env.local
+.next/
+out/
+__pycache__/
+*.pyc
+.claude-design/
+.vercel
+.env*.local
